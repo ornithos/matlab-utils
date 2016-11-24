@@ -1,4 +1,4 @@
-function out = structCoalesce(s1, s2, doDrop)
+function out = structCoalesce(s1, s2, doDrop, warnings)
     % structCoalesce(s1, s2) returns s1 unchanged if all fields in s2 appear in
     % s1. Otherwise, all fields in s2 which are unavailable in s1 are copied
     % over.
@@ -8,10 +8,14 @@ function out = structCoalesce(s1, s2, doDrop)
     
     assert(isstruct(s2));
     assert(isstruct(s2));
+    if nargin < 4 || isempty(warnings)
+        warnings = false;
+    end
     if nargin < 3 || isempty(doDrop)
         doDrop = false;
     end
     assert(islogical(doDrop));
+    assert(islogical(warnings));
     
     out = s1;
     reqdfields = fieldnames(s2);
@@ -26,7 +30,7 @@ function out = structCoalesce(s1, s2, doDrop)
     if doDrop
         extraFields = setxor(fieldnames(out), reqdfields);
         if ~isempty(extraFields)
-            warning('the following fields have been ignored: %s', strjoin(extraFields, ', '));
+            if warnings; warning('the following fields have been ignored: %s', strjoin(extraFields, ', ')); end
             out = utils.struct.structColFn(out, extraFields, 'drop');
         end
     end

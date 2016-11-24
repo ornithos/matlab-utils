@@ -12,24 +12,6 @@ classdef objProgressBar < handle
         showTime = false;
     end
     
-    methods (Static = true, Access = public)
-        function td = getInstance(varargin)
-
-            % Import the Teradata package.
-            import tesco.teradata.*
-
-            % Call helper function.
-            td = getInstanceHelper(varargin{:});
-            
-            % This function is needed in order to avoid a bug in MATLAB
-            % R2014a that causes issues when deploying a singleton class (a
-            % class containing persistent variables) that is executed by
-            % multiple MCRs simultaneously (as is the case when deploying
-            % to MATLAB Production Server).
-
-        end
-    end
-    
     methods (Access = public)
         % constructor
         function obj = objProgressBar
