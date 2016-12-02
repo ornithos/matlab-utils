@@ -1,10 +1,10 @@
 function path = matlabPath(varargin)
-    % path = StoreOrderingDevelopmentPath
-    % (Absolute) Network path for SO network drive. This is trying to get
-    % around different users who have different drive mappings set up.
+    % path = matlabPath
+    % (Absolute) Set your MATLAB working folder once here, and re-use
+    % elsewhere using this function
     %
-    % path = StoreOrderingDevelopmentPath('folder', 'subfolder', ...)
-    % Works like fullfile, only with the SO path pre-pended.
+    % path = matlabPath('folder', 'subfolder', ...)
+    % Works like fullfile, only with the matlab path pre-pended.
     %
     
     try

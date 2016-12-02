@@ -1,4 +1,4 @@
-function writeCell(c, formatSpec, filename, verbose, nmCell)
+function writeCell(c, formatSpec, filename, verbose, nmCell, header)
     % writeCell(writeCell, formatSpec, filename)
     %   write a cell as a dlm file to disk, according to formatSpec.
     
@@ -19,6 +19,10 @@ function writeCell(c, formatSpec, filename, verbose, nmCell)
 
     % actually do the data dump!
     fid      = fopen(filename,'w');
+    
+    if nargin > 5 && ~isempty(header)
+        fprintf(fid, '%s\n', header);
+    
     for ii = 1:n
         fprintf(fid, formatSpec, c{ii,:});
         if verbose && mod(ii,printFrq) == 0

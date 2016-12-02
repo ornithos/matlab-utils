@@ -11,18 +11,12 @@ function out = regexprep2(expression, str, replace, varargin)
     % **** NOTE ****
     %  This function assumes a single expression, NOT a cell array of
     %  strings.
+    %
+    % BUG:
+    % regexp tokenExtents seems to exhibit volatile behaviour. It has
+    % literally stopped working in one session. Replaced with simpler code
+    % using ''split''.
     
-    tks = regexp(expression, str, varargin{:}, 'tokenExtents');
-    cExp = expression;
-    len = 0;
-    lenR = numel(replace);
-    
-    for ii = 1:numel(tks)
-        ix    = tks{ii};
-        ix    = ix + (ii-1)*lenR - len;
-        cExp  = [cExp(1:ix(1)-1), replace, cExp(ix(2)+1:end)];
-        len   = len + diff(ix) + 1;
-    end
-    
-    out = cExp;
-    
+    out = regexp(expression, str, varargin{:}, 'split');
+    out = strjoin(out, replace);
+end

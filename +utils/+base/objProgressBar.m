@@ -8,8 +8,9 @@ classdef objProgressBar < handle
     properties (Access = private)
         maxLen   = 0;
         curPct   = 0;
-        showPct  = false;
-        showTime = false;
+        showPct  = true;
+        showTime = true;
+        showElapsed = false;
     end
     
     methods (Access = public)
@@ -17,28 +18,55 @@ classdef objProgressBar < handle
         function obj = objProgressBar
         end
         
-        function newProgressBar(obj, text, maxLen, showPct, showTime)
+        % old syntax newProgressBar(obj, text, maxLen, showPct, showTime)
+        function newProgressBar(obj, text, maxLen, varargin)
+            
+            assert(ischar(text), 'text must be a character string');
+            assert(isnumeric(maxLen) && isscalar(maxLen) && maxLen > 0, 'maxLen must be a positive integer');
+            
+            if numel(varargin) > 0
+                if sum(cellfun(@ischar, varargin)) == 0
+                    error('progress bar syntax has changed to newProgressBar(obj, text, maxLen, varargin) (eg. ''showElapsed''');
+                end
+            end
+            
+            if ismember('showPct', varargin(1:2:end))
+                pos        = find(strcmp('showPct', varargin));
+                if numel(varargin) < pos + 1; error('all varargin arguments must come in pairs'); end
+                obj.showPct = varargin{pos+1};
+                assert(isscalar(obj.showPct) && islogical(obj.showPct), 'showPct must be a scalar bool');
+                varargin([pos, pos+1]) = [];
+            end
+
+            if ismember('showElapsed', varargin(1:2:end))
+                pos        = find(strcmp('showElapsed', varargin));
+                if numel(varargin) < pos + 1; error('all varargin arguments must come in pairs'); end
+                obj.showElapsed = varargin{pos+1};
+                obj.showTime    = false;    % <----- Note XOR here
+                assert(isscalar(obj.showElapsed) && islogical(obj.showElapsed), 'showElapsed must be a scalar bool');
+                varargin([pos, pos+1]) = [];
+            end
+            
+            if ismember('showTime', varargin(1:2:end))
+                pos        = find(strcmp('showTime', varargin));
+                if numel(varargin) < pos + 1; error('all varargin arguments must come in pairs'); end
+                assert(~obj.showElapsed, 'progress bar can show only one of ''time'' or ''elapsed''');
+                obj.showTime = varargin{pos+1};
+                assert(isscalar(obj.showTime) && islogical(obj.showTime), 'showTime must be a scalar bool');
+                varargin([pos, pos+1]) = [];
+            end
+
+            if numel(varargin) > 0
+                unusedArgs = strjoin(varargin(1:2:end), ',');
+                warning('unused args given in input: %s', unusedArgs);
+            end
+    
             if obj.maxLen > 0
                 warning('Progress Bar is already initialised. Use method ''.finish'' in future. Re-initialising anyway...');
             end
             
-            if nargin < 5 || isempty(showTime)
-                showTime = false;
-            end
-            
-            if nargin < 4 || isempty(showPct)
-                showPct = false;
-            end
-            
-            assert(ischar(text), 'text must be a character string');
-            assert(isnumeric(maxLen) && isscalar(maxLen) && maxLen > 0, 'maxLen must be a positive integer');
-            assert(islogical(showPct) && isscalar(showPct), 'showPct must be true or false');
-            assert(islogical(showTime) && isscalar(showTime), 'showTime must be true or false');
-            
             obj.text          = text;
             obj.maxLen        = maxLen;
-            obj.showPct       = showPct;
-            obj.showTime      = showTime;
             obj.startTime     = now;
             obj.currOutputLen = 0;
         end
@@ -59,6 +87,8 @@ classdef objProgressBar < handle
             % prefix with time (if applicable)
             if obj.showTime
                 printOut  = sprintf('(%s) %s', datestr(now, 'HH:MM:SS'), obj.text);
+            elseif obj.showElapsed
+                printOut  = sprintf('(%s) %s', obj.elapsedTime, obj.text);
             else
                 printOut   = obj.text;
             end
