@@ -6,7 +6,7 @@ function out = structCoalesce(s1, s2, doDrop, warnings)
     % structCoalesce(s1, s2, true)
     % as above, but drops any additional fields in s1 that are not in s2.
     
-    assert(isstruct(s2));
+    assert(isstruct(s1));
     assert(isstruct(s2));
     if nargin < 4 || isempty(warnings)
         warnings = false;

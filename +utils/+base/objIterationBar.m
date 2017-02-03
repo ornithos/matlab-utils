@@ -41,7 +41,7 @@ classdef objIterationBar < handle
             end
             
             assert(ischar(text), 'text must be a character string');
-            assert(isnumeric(maxIter) && isscalar(maxIter) && maxIter > 0, 'maxLen must be a positive integer');
+            assert(isnumeric(maxIter) && isscalar(maxIter));
             assert(islogical(showElapsed) && isscalar(showElapsed), 'showElapsed must be true or false');
             
             obj.text          = text;
@@ -60,6 +60,7 @@ classdef objIterationBar < handle
         
         % print
         function obj = print(obj, iternum, delta)
+            assert(obj.maxIter > 0, 'maxIter must be a positive integer');
             assert(isnumeric(iternum) && isscalar(iternum), 'iternum must be a numeric scalar');
             if nargin < 3
                 delta = [];
