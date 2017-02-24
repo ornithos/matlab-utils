@@ -18,14 +18,23 @@ function [ax,h]=subtitle(varargin)
     %
     % 
 
-    ax = axes('Units','Normal','Position',[.075 .095 .85 .85],'Visible','off');
+    ax = axes('Units','Normal','Position',[.15 .105 .7 .85],'Visible','off');
     set(get(ax,'Title'),'Visible','on')
 
+    ttl = '';
     if isnumeric(varargin{1})
-        title(sprintf('\\fontsize{%d}%s', varargin{:}));
-    else
-        title(sprintf('%s', varargin{:}));
+        ttl = sprintf('\\fontsize{%d}', varargin{1});
+        varargin(1) = [];
     end
+
+    ttl = [ttl, varargin{1}];
+    varargin(1) = [];
+    
+    if ~isempty(varargin)
+        ttl = sprintf(ttl, varargin{:});
+    end
+    
+    title(ttl);
 
     if nargout > 1
         h=get(ax,'Title');

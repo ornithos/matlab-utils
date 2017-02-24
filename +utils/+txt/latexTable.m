@@ -60,11 +60,13 @@ function out = latexTable(A, rowlabels, collabels, prec, doPrint)
     if nargin < 4 || isempty(prec)
         prec    = 8;
         special = false;
+    elseif numel(prec) == 1
+        special = false;
     elseif ismatrix(prec) 
-        if numel(prec) == n
+        if numel(prec) == n && min(size(prec))==1
             special = true;
             prec    = arrayfun(@(x) sprintf('%%.%df', x), prec, 'Un', 0);
-        elseif numel(prec) > 1
+        else
             error('prec must either be one dimensional or have the same number of columns as A');
         end
     elseif numel(prec) > 1

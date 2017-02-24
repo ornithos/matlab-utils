@@ -5,7 +5,7 @@ function C = latexTableHighlight(C, rr, cc, prefix, postfix)
     %   Highlights specific cells based on the (row, column)s specified in
     %   arrays (rr, cc).
     %
-    %   Currently assumes highlighting math (uses mathred). Is not dynamic
+    %   Currently assumes highlighting math (uses mathbf). Is not dynamic
     %   depending on input.
     
     assert(iscellstr(C), 'input is not of form cellstring');
@@ -19,7 +19,7 @@ function C = latexTableHighlight(C, rr, cc, prefix, postfix)
     end
     
     if nargin < 4 || isempty(prefix)
-        prefix = '\mathred{';
+        prefix = '\mathbf{';
     end
     
     for ii = 1:numel(rr)

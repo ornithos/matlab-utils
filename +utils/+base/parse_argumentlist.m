@@ -16,6 +16,13 @@ function out = parse_argumentlist(args, defaults, warnings)
     fds   = fieldnames(out);
     
     for ii = 1:numel(fds)
-        assert(isa(out.(fds{ii}), class(defaults.(fds{ii}))), 'args.%s of a different type to default', fds{ii});
+        classOfDefault = class(defaults.(fds{ii}));
+        if ~isa(out.(fds{ii}), classOfDefault)
+            if islogical(defaults.(fds{ii})) && isnumeric(out.(fds{ii}))
+                continue
+            else
+                error('args.%s of a different type to default', fds{ii});
+            end
+        end
     end
 end

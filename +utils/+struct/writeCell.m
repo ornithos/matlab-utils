@@ -22,6 +22,7 @@ function writeCell(c, formatSpec, filename, verbose, nmCell, header)
     
     if nargin > 5 && ~isempty(header)
         fprintf(fid, '%s\n', header);
+    end
     
     for ii = 1:n
         fprintf(fid, formatSpec, c{ii,:});

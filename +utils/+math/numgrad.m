@@ -1,8 +1,8 @@
-function g = numgrad(fn, X, h)
+function g = numgrad(fn, X, h, shutup)
     % g = numgrad(fn, X h)
     % Returns the numerical gradient of function fn evaluated at X. By
-    % default a precision of 1e-10 is used. To override, use the h value.
-    % The value is calculated via the central derivative.
+    % default a precision of sqrt(eps) is used. To override, use the h
+    % value. The value is calculated via the central derivative.
     %
     % INPUTS:
     %  fn - a function handle which takes a single input.
@@ -18,8 +18,11 @@ function g = numgrad(fn, X, h)
     assert(isa(fn, 'function_handle'), 'fn must be a function handle');
     assert(ismatrix(X) && isnumeric(X), 'X must be a numeric matrix');
     
+    if nargin < 4 || isempty(shutup)
+        shutup = false;
+    end
     if nargin < 3 || isempty(h)
-        h = 1e-10;
+        h = sqrt(eps);
     end
     assert(isscalar(h) && isnumeric(h), 'h must be a numeric scalar');
     
@@ -31,19 +34,22 @@ function g = numgrad(fn, X, h)
     rsF = imF(2)>1;
     g   = zeros(prod(imF), nX);
     
+    fnX = fn(X);
+    
     for ii = 1:nX
         Xplus       = vX;
-        Xplus(ii)   = Xplus(ii) + h/2;
-        Xminus      = vX;
-        Xminus(ii)  = Xminus(ii) - h/2;
+        Xplus(ii)   = Xplus(ii) + h;
+        % central differences..
+%         Xminus      = vX;
+%         Xminus(ii)  = Xminus(ii) - h/2;
         
         if rsX
             Xplus   = reshape(Xplus, sX);
-            Xminus  = reshape(Xminus, sX);
+%             Xminus  = reshape(Xminus, sX);
         end
         
         % calculate gradient here!
-        cG          = (fn(Xplus) - fn(Xminus))/h;
+        cG          = (fn(Xplus) - fnX)/h;
         cG          = cG(:);    % vec(cG)
         g(:,ii)     = cG;
     end
@@ -52,5 +58,9 @@ function g = numgrad(fn, X, h)
         g           = reshape(g, imF);
     elseif rsX && prod(imF)==1
         g           = reshape(g, sX);
+    else
+        if ~shutup
+            warning('Returning gradient as n(fn output) x n(variables)');
+        end
     end
 end
