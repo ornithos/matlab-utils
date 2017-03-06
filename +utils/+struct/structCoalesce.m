@@ -6,8 +6,17 @@ function out = structCoalesce(s1, s2, doDrop, warnings)
     % structCoalesce(s1, s2, true)
     % as above, but drops any additional fields in s1 that are not in s2.
     
-    assert(isstruct(s1));
-    assert(isstruct(s2));
+    assert(isstruct(s1), 's1 is not a struct');
+    assert(isstruct(s2), 's2 is not a struct');
+    if numel(s1) > 1
+        warning('struct 1 is a struct array! Evil! I''ll go ahead and convert that for you...');
+        s1 = utils.struct.structarray2struct(s1);
+    end
+    if numel(s2) > 1
+        warning('struct 2 is a struct array! Evil! I''ll go ahead and convert that for you...');
+        s2 = utils.struct.structarray2struct(s2);
+    end
+    
     if nargin < 4 || isempty(warnings)
         warnings = false;
     end

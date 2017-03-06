@@ -9,7 +9,7 @@ function args = processVarargin(vars, defaults)
     %
     
     opts = struct;
-    if numel(vars) > 1
+    if numel(vars) >= 1
         while ~isempty(vars)
             if isstruct(vars{1})
                 opts = utils.struct.structCoalesce(vars{1}, opts);
@@ -23,7 +23,7 @@ function args = processVarargin(vars, defaults)
     % name-value inputs
     narargin = numel(vars);
     if mod(narargin,2) ~= 0
-        ME = MException('processVarargin:nopair','arguments to expLogJoint must come in name-value pairs.');
+        ME = MException('processVarargin:nopair','arguments must come in name-value pairs.');
         throwAsCaller(ME);
     end
     
