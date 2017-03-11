@@ -127,6 +127,7 @@ classdef underplot < handle
                     lab = opts.yAxisLabelMain;
                 else
                     assert(ischar(opts.yAxisLabelMain), 'yAxisLabelMain should be a character string');
+                    lab = {opts.yAxisLabelMain};
                 end
                 ylabel(obj.axisMain, lab);
             end
