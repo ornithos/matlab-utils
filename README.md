@@ -1,6 +1,6 @@
-tlab-utils
+## matlab-utils
 
-### This is a package just containing various utility functions I've made for MATLAB.
+### This is a package containing various utility functions I've made for MATLAB.
 
 Don't let the fact that it's presented as a 'package' fool you into thinking it's well organised, or addresses any specific concern. It is essentially a dumping ground for any function that isn't specifically tailored toward an application. The better features of this include:
 
@@ -23,7 +23,7 @@ Example output:
 Obviously these could have a better common interface, but it's not high on my priority list.
 
 ### Processing optional arguments
-I find MATLAB's non-support of default values in functino declarations a little tiresome. This is my current workaround, using the function `processVarargin`:
+I find MATLAB's non-support of default values in function declarations a little tiresome. This is my current workaround, using the function `processVarargin`:
 ```matlab
 function out = foo(varargin)
     defaults.x       = 0;
@@ -35,7 +35,7 @@ function out = foo(varargin)
     
 end
 ```
-The function `utils.base.processVarargin` will return a struct with the defaults overwritten where applicable with fields from varargin. Types are checked, and warnings given if extraneous arguments given that are not contained in the default struct.
+The function `utils.base.processVarargin` will return a struct with the defaults overwritten where applicable with fields from varargin. Types are checked, and warnings given if extraneous arguments given that are not contained in the default struct. I appreciate there are various ways to do this, this is merely my preferred method at present. It is also overloaded to deal with struct inputs, so instead of needing to specify name-value pairs, options can be passed between functions in structs.
 
 ### Subordinate plots (underplot)
 Sometimes you want to include additional plots to convey the state of other variables below a main plot. The result in the below figure can be achieved using the following code:
