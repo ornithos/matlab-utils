@@ -68,7 +68,7 @@ classdef objIterationBar < handle
             
             % prefix with time (if applicable)
             if obj.showElapsed
-                printOut  = sprintf('%s(%s) %s%d', obj.prefix, obj.elapsedTime('MM:SS'), obj.text, iternum);
+                printOut  = sprintf('%s(%s) %s%d', obj.prefix, obj.elapsedTime('HH:MM:SS'), obj.text, iternum);
             else
                 printOut  = sprintf('%s(%s) %s%d', obj.prefix, datestr(now, 'HH:MM:SS'), obj.text, iternum);
             end
