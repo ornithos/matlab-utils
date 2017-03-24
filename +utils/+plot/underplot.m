@@ -121,23 +121,7 @@ classdef underplot < handle
             end
             
             % add labels
-            if ~isempty(opts.yAxisLabelMain)
-                if iscell(opts.yAxisLabelMain)
-                    assert(numel(opts.yAxisLabelMain), 'yAxisLabelMain should contain only one element');
-                    lab = opts.yAxisLabelMain;
-                else
-                    assert(ischar(opts.yAxisLabelMain), 'yAxisLabelMain should be a character string');
-                end
-                ylabel(obj.axisMain, lab);
-            end
-            
-            if ~isempty(opts.yAxisLabelUnder)
-                assert(iscellstr(opts.yAxisLabelUnder), 'yAxisLabelUnder must be a cell of character strings');
-                assert(numel(opts.yAxisLabelUnder)==obj.n, 'yAxisLabelUnder must contain a label for each of the %d subordinate axes');
-                for ii = 1:obj.n
-                    ylabel(obj.axesThin{ii}, opts.yAxisLabelUnder{ii});
-                end
-            end
+            obj.ylabels(opts.yAxisLabelMain, opts.yAxisLabelUnder);
             
             % save options in case plotting over-writes this.
             obj.underYtickmarks = opts.underYtickmarks;
@@ -149,18 +133,15 @@ classdef underplot < handle
         function ax = plot(obj, axisName, varargin)
             
             if isnumeric(axisName)
-                ax = getAxis(obj, axisName);
-                plot(ax, varargin{:});
-                plotType = axisName;
-                return
+                plotType = (axisName > 0) + 1;
+                varargin = [axisName, varargin];
+            else
+                axisName = lower(axisName);
+                assert(any(ismember(axisName, {'main', 'under'})));
+                assert(numel(varargin)>0, 'not enough arguments');
+
+                plotType = find(strcmp(axisName, {'main', 'under'}));
             end
-            
-            % else longhand
-            axisName = lower(axisName);
-            assert(any(ismember(axisName, {'main', 'under'})));
-            assert(numel(varargin)>0, 'not enough arguments');
-            
-            plotType = find(strcmp(axisName, {'main', 'under'}));
             
             if plotType == 1 
                 if utils.is.scalarint(varargin{1}) || isempty(varargin{1})
@@ -179,9 +160,11 @@ classdef underplot < handle
                 assert(utils.is.scalarint(nn) && nn > 0 && nn <= obj.n, 'invalid underplot specification. Must be <= %d', obj.n);
                 ax = obj.axesThin{nn};
                 varargin(1) = [];
+                mainaxislims = xlim(obj.axisMain);
                 plot(ax, varargin{:});
                 
                 % plotting (without hold) overwrites options
+                xlim(ax, mainaxislims);
                 if nn < obj.n || ~obj.underXtickmarks
                     set(ax, 'xticklabel', {[]});
                 end
@@ -253,6 +236,47 @@ classdef underplot < handle
             title(ax, strTitle);
         end
         
+        function lims = xlim(obj, x1, x2)
+            if nargin < 2
+                x1 = obj.axisMain.XLim;
+                lims = [x1(1), x1(2)];
+                return
+            end
+            if isnumeric(x1) && numel(x1) == 2 && (nargin < 3 || isempty(x2))
+                x2 = x1(1);
+            end
+
+            assert(isnumeric(x1) && isscalar(x1), 'x1 is not numeric scalar');
+            assert(isnumeric(x2) && isscalar(x2), 'x2 is not numeric scalar');
+            xlim(obj.axisMain, [x1, x2]);
+            for ii = 1:obj.n
+                xlim(obj.axesThin{ii}, [x1, x2]);
+            end
+            lims = [x1,x2];
+        end
+        
+        function kludge = ylabels(obj, yAxisLabelMain, yAxisLabelUnder)
+            if ~isempty(yAxisLabelMain)
+                if iscell(yAxisLabelMain)
+                    assert(numel(yAxisLabelMain), 'yAxisLabelMain should contain only one element');
+                    lab = yAxisLabelMain{1};
+                else
+                    assert(ischar(yAxisLabelMain), 'yAxisLabelMain should be a character string');
+                    lab = yAxisLabelMain;
+                end
+                ylabel(obj.axisMain, lab);
+            end
+            
+            if nargin > 1 && ~isempty(yAxisLabelUnder)
+                assert(iscellstr(yAxisLabelUnder), 'yAxisLabelUnder must be a cell of character strings');
+                assert(numel(yAxisLabelUnder)==obj.n, 'yAxisLabelUnder must contain a label for each of the %d subordinate axes');
+                for ii = 1:obj.n
+                    ylabel(obj.axesThin{ii}, yAxisLabelUnder{ii});
+                end
+            end
+            kludge = [];
+        end
+        
         function ax = legend(obj, cellLegend, axisName, axisNum)
             assert(iscellstr(cellLegend), 'cellLegend must be a cell of character strings');
             if nargin < 3
@@ -265,14 +289,33 @@ classdef underplot < handle
             legend(ax, cellLegend);
         end
         
-        function newRot = rotateYlabels(obj, varargin)
+        function newrotation = rotateYlabels(obj, newrotation, varargin)
+            togglerotation = false;
+            if nargin < 2 || isempty(newrotation)
+                togglerotation = true;
+            else
+                assert((isnumeric(newrotation) && isscalar(newrotation) ) || ischar(newrotation), ...
+                        'newrotation must be angle of rotation in degrees, or ''horizontal''/''vertical''');
+                if ischar(newrotation)
+                    switch newrotation
+                        case 'horizontal'
+                            newrotation = 90;
+                        case 'vertical'
+                            newrotation = 0;
+                        otherwise
+                            error('character input for newrotation must be ''horizontal''/''vertical''');
+                    end
+                end
+            end
             axs = obj.charSwitchMultipleAxes(varargin{:});
             
             for ii = axs
                 ax = obj.getAxisObject(ii);
-                cRotation = get(get(ax,'YLabel'),'Rotation');
-                newRot    = 0 + (cRotation == 0)*90;
-                set(get(ax,'YLabel'),'Rotation', newRot);
+                if togglerotation
+                    cRotation = get(get(ax,'YLabel'),'Rotation');
+                    newrotation = 0 + (cRotation == 0)*90;
+                end
+                set(get(ax,'YLabel'),'Rotation', newrotation);
                 set(get(ax, 'YLabel'),'HorizontalAlignment','right', 'VerticalAlignment', 'middle');
             end
         end

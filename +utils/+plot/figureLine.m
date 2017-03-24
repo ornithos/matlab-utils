@@ -1,4 +1,4 @@
-function figureLine(m, c)
+function figureLine(m, c, varargin)
     %figureLine(m, c)
     % Draw line y = mx + c 
     % in the current axes. Will maintain limits currently shown
@@ -43,7 +43,7 @@ function figureLine(m, c)
         end
     end
         
-    plot([x1,x2], [y1,y2]);
+    plot([x1,x2], [y1,y2], varargin{:});
     if origHoldStatus == 0
         hold off
     end

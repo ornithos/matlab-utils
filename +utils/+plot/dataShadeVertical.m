@@ -9,15 +9,20 @@ function dataShadeVertical(x, y, cmap, varargin)
     assert(size(cmap,1) > 1, 'colormap cmap must have at least 2 rows');
     
     optsDefault = struct('rescale', false, 'edgecolor', 'k', 'edgedetect', 'auto', ...
-                        'edgemanual', 0, 'edgesToBack', true, 'axis', gca);
+                        'edgemanual', 0, 'edgesToBack', true, 'axis', []);
     opts = utils.base.processVarargin(varargin, optsDefault);
+    if isempty(opts.axis)
+        ax = gca;
+    else
+        ax = opts.axis;
+    end
     
     ncols     = size(cmap,1);
     N         = numel(x);
     
     %% find axis limits
-    lim       = axis;
-    chtObjsOrig = get(gca,'children');
+    lim       = axis(ax);
+    chtObjsOrig = get(ax,'children');
     
     assert(numel(unique(x))==numel(x), 'x values must be unique');
     assert(all(diff(x)>0),'x values must be in ascending order');
@@ -87,8 +92,8 @@ function dataShadeVertical(x, y, cmap, varargin)
             error('unknown edgedetect argument. Should be in {auto, manual, none, all}');
     end
     
-    isHeld     = ishold;
-    hold on;
+    isHeld     = ishold(ax);
+    hold(ax, 'on');
         
     %% Plot
 %     imagesc(x, y, cmap);
@@ -98,24 +103,24 @@ function dataShadeVertical(x, y, cmap, varargin)
         pos    = [xpos, bottom, wdth, height]; 
         
         if ~all(ycols(ii-1,:)==1) % white
-            h=rectangle('pos',pos,'facecolor',ycols(ii-1,:),'edgecolor','none');
+            h=rectangle(ax, 'pos',pos,'facecolor',ycols(ii-1,:),'edgecolor','none');
         end
         
         if edges(ii)
-            utils.plot.verticalLine(pos(1), 'Color', opts.edgecolor, 'LinesToBack', false)
+            utils.plot.verticalLine(pos(1), 'axis', ax, 'Color', opts.edgecolor, 'LinesToBack', false)
         end
     end
 
-    axis(lim)  % reset axes
+    axis(ax, lim)  % reset axes
     
     % put rectangles to back
-    chtObjs = get(gca,'children');
+    chtObjs = get(ax, 'children');
     nLines  = numel(chtObjsOrig);
     chtObjs = [chtObjs(end-nLines+1:end); chtObjs(1:end-nLines)];
-    set(gca,'children', chtObjs);
+    set(ax,'children', chtObjs);
     
     if ~isHeld
-        hold off
+        hold(ax, 'off')
     end
 end
 %     %position the box in the centre of x-axis, 1% wide, full height of axis

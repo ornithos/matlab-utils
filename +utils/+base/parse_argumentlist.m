@@ -17,6 +17,10 @@ function out = parse_argumentlist(args, defaults, warnings)
     
     for ii = 1:numel(fds)
         classOfDefault = class(defaults.(fds{ii}));
+        if (isnumeric(defaults.(fds{ii})) || iscell(defaults.(fds{ii}))) && numel(defaults.(fds{ii})) == 0
+            % this is empty and doesn't really specify a class
+            continue
+        end
         if ~isa(out.(fds{ii}), classOfDefault)
             if islogical(defaults.(fds{ii})) && isnumeric(out.(fds{ii}))
                 continue
