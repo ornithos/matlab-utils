@@ -122,7 +122,7 @@ classdef underplot < handle
             
             % add labels
             obj.ylabels(opts.yAxisLabelMain, opts.yAxisLabelUnder);
-            
+
             % save options in case plotting over-writes this.
             obj.underYtickmarks = opts.underYtickmarks;
             obj.underXtickmarks = opts.underXtickmarks;

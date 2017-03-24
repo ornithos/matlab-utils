@@ -10,7 +10,7 @@ function path = matlabPath(varargin)
     try
         path = utils.system.findPathStem(mfilename, 'MATLAB', true);
     catch
-        path = '/Users/alexbird/Documents/MATLAB';
+        path = '~/code/matlab';
         if ~exist(path, 'file')
             error('Unable to find base MATLAB path - please fix in matlabPath file');
         end
