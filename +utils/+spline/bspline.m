@@ -112,22 +112,35 @@ classdef bspline
             for nn = 1:N
                 B(nn, (left(nn)-obj.k+1):left(nn)+1) = b(nn,:);
             end
+
         end
         
         function out = functionEval(obj, X, coeffs)
-            % Evaluate function with respect to coeffs at positions X.
+            % Evaluate function with respect to coeffs at positions X. Each
+            % *row* of X must correspond to a point to evaluate.
             % function is flatlined outside of specified knot iterval.
-            if size(coeffs,2) > 1; coeffs = coeffs'; end;
+            
+            N     = size(X,1);
+            [m1, m2] = size(coeffs);
+            T     = numel(obj.t);
+            
+            if m1 ~= T-2
+                if m2 == T-2
+                    coeffs   = coeffs';
+                    [m1, m2] = deal(m2, m1);
+                else
+                    error('coeffs are not conformable to the number of knots (%d)', T);
+                end
+            end
             
             ltK = X < obj.t(1);
             gtK = X > obj.t(end);
             X(ltK | gtK) = obj.t(1);
             
-            N   = size(X,1);
             out = zeros(size(X));
             for ii = 1:N
                 B   = obj.basisEval(X(ii,:));
-                out(ii,:) = B*coeffs;
+                out(ii,:) = B*coeffs(:,min(ii,m2));
             end
             out(ltK) = coeffs(1);
             out(gtK) = coeffs(end);

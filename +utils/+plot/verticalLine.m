@@ -25,12 +25,15 @@ function verticalLine(x, varargin)
     
     axis(ax, lim)  % reset axes
     
-    % put lines to back
+    % remove from legend / put lines to back
+    chtObjs = get(ax,'children');
+    nPlots  = numel(chtObjsOrig);
+    for ii = (nPlots+1):numel(chtObjs)
+        set(get(get(chtObjs(end-ii+1),'Annotation'),'LegendInformation'), 'IconDisplayStyle','off');
+    end
     if opts.LinesToBack
-        chtObjs = get(ax,'children');
-        nPlots  = numel(chtObjsOrig);
         chtObjs = [chtObjs(end-nPlots+1:end); chtObjs(1:end-nPlots)];
-        set(ax,'children', chtObjs);
+        set(ax,'children', chtObjs)
     end
     
     if ~isHeld

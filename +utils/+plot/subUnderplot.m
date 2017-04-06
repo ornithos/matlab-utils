@@ -89,11 +89,17 @@ classdef subUnderplot < handle
                  ll = length(s);
                  curS = s(1);
                  curS.type = '{}';
+                 if numel(curS.subs) == 1
+                     [m,n] = size(obj.underplots);
+                     ss    = curS.subs{1};
+                     assert(ss >= 1 && ss <= m*n, 'index must be between 1 and m*n');
+                     curS.subs  = {floor((ss - 1)./n)+1, mod(ss-1, m)+1};
+                 end
                  sref = builtin('subsref', obj.underplots, curS);
                  
                  if ll > 1
                      curS = s(2:end);
-                     sref = builtin('subsref', sref, curS);
+                     sref = builtin('subsref', sref, curS);                     
                  end
                  
               case '{}'

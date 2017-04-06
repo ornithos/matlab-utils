@@ -44,7 +44,7 @@ classdef underplot < handle
             opts      = utils.base.processVarargin(varargin, optsDefault);
             position  = opts.position;
             
-            assert(utils.is.scalarint(n) && n > 1, 'n must be a scalar integer, n > 1');
+            assert(utils.is.scalarint(n, 0), 'n must be a positive scalar integer');
             assert(isscalar(mainPct) && mainPct < 0.99 && mainPct > 0.01, 'mainPct must be in [0.1,0.99]');
             assert(isnumeric(position) && isvector(position) && numel(position) == 4 && ...
                     all(position <=1) && all(position>=0), 'position must be a 4 element vector in [0,1]');
