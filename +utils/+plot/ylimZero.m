@@ -8,6 +8,9 @@ function ylimZero(d)
     %
     % eg. ylimZero(1) means ylim([0, currentUpperLimt])
    
+    if nargin < 1
+        d = 1;
+    end
     
     h = gca;
     curLim = get(gca, 'YLim');

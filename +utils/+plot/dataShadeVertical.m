@@ -78,11 +78,19 @@ function dataShadeVertical(x, y, cmap, varargin)
             edges = true(size(y));
         case 'manual'
             assert(isnumeric(opts.edgemanual) || islogical(opts.edgemanual), 'edgemanual is not numeric');
-            if isscalar(opts.edgemanual) && ~islogical(opts.edgedetect)
-                % scalar threshold
-                edges = y(:) < opts.edgemanual;
-                edges = [false; false; abs(diff(edges))>0.5];
-                edges = edges(1:end-1);
+            if ~islogical(opts.edgedetect)
+                edgetmp = cell(numel(opts.edgemanual),1);
+                for kk = 1:numel(opts.edgemanual)
+                    % scalar threshold
+                    edgetmp{kk} = y(:) < opts.edgemanual(kk);
+                    edgetmp{kk} = [false; false; abs(diff(edgetmp{kk}))>0.5];
+                    edgetmp{kk} = edgetmp{kk}(1:end-1);
+                    if kk == 1
+                        edges = edgetmp{kk};
+                    else
+                        edges = edges | edgetmp{kk};
+                    end
+                end
             else
                 % manual vector
                 assert(numel(opts.edgedetect) == N, 'edgedetect matrix not same size as x or y. Should be string or logical of size(x)');

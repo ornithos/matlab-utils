@@ -72,7 +72,15 @@ classdef bspline
             
             assert(isnumeric(X) && isvector(X), 'X must be a numeric vector');
             X               = X(:);
-            
+   
+            % recurrence assumes nondecreasing input sequence. Ensure this
+            % is so. (cf James Ramsay)
+            if min(diff(X)) < 0 
+                [X, isrt] = sort(X); 
+                reordered = 1;
+            else
+                reordered = 0;
+            end
             N               = numel(X);
             nt              = numel(obj.t);
 %             ix   = utils.base.findInterval(X, obj.t, 'type', 'logical', 'ties', 'all');
@@ -112,7 +120,12 @@ classdef bspline
             for nn = 1:N
                 B(nn, (left(nn)-obj.k+1):left(nn)+1) = b(nn,:);
             end
-
+            
+            % if reordered elements if they were not monotonically increasing, put back in original
+            if reordered
+                temp = B;
+                B(isrt,:) = temp;
+            end
         end
         
         function out = functionEval(obj, X, coeffs)
@@ -121,11 +134,12 @@ classdef bspline
             % function is flatlined outside of specified knot iterval.
             
             N     = size(X,1);
+            assert(ismatrix(X), 'X must be a matrix, not a tensor');
             [m1, m2] = size(coeffs);
             T     = numel(obj.t);
             
             if m1 ~= T-2
-                if m2 == T-2
+                if m2 == T-2     % transpose if required, and swap dims
                     coeffs   = coeffs';
                     [m1, m2] = deal(m2, m1);
                 else
