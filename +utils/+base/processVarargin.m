@@ -12,7 +12,7 @@ function args = processVarargin(vars, defaults)
     if numel(vars) >= 1
         while ~isempty(vars)
             if isstruct(vars{1})
-                opts = utils.struct.structCoalesce(vars{1}, opts);
+                opts = utils.struct.structCoalesce(vars{1}, defaults);
                 vars(1) = [];
             else
                 break

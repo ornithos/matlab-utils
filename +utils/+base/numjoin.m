@@ -17,6 +17,7 @@ function out = numjoin(x, delim, dp)
         dp = sprintf('%%.%df', dp);
     end
     
+    if isempty(x); out = x; return; end
     assert(isvector(x), 'x must be a vector');
     assert(isnumeric(x), 'x must be numeric');
     assert(ischar(delim), 'delim must be a character');
