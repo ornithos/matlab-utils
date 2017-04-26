@@ -65,12 +65,16 @@ classdef bspline
             obj.bdknots = bdknots;
         end
     
-        function B = basisEval(obj, X)
+        function B = basisEval(obj, X, doSlow)
             % evaluate the given basis at positions X = [x1, x2, ..., xm].
             %
             % Uses recurrence B_{jk} = w_{jk} B_{j,k-1} + (1-w_{jk}) B_{j+1,k-1}
             
             assert(isnumeric(X) && isvector(X), 'X must be a numeric vector');
+            if nargin < 3 || isempty(doSlow)
+                doSlow = false;
+            end
+            
             X               = X(:);
    
             % recurrence assumes nondecreasing input sequence. Ensure this
@@ -116,9 +120,30 @@ classdef bspline
             
             % this loop is a lot slower than the method used by James
             % Ramsay - but it is *much* more intuitive!
-            B = zeros(N, numel(obj.t) - obj.bdknots+1);
-            for nn = 1:N
-                B(nn, (left(nn)-obj.k+1):left(nn)+1) = b(nn,:);
+            if doSlow
+                B = zeros(N, numel(obj.t) - obj.bdknots+1);
+                for nn = 1:N
+                    B(nn, (left(nn)-obj.k+1):left(nn)+1) = b(nn,:);
+                end
+            else
+                % James Ransay version
+                ns    = numel(obj.t) - obj.bdknots + 1;
+                nbasis= numel(obj.t) - obj.bdknots*2 + obj.k + 1;
+                nx    = N;
+                nd    = 1;  % derivative num + 1
+                onenb = ones(obj.k+1,1);
+                onenx = ones(N, 1);
+                onens = ones(ns, 1);
+                
+                width = max([ns,nbasis]) + obj.k + obj.k;
+                
+                cc    = zeros(nx*width,1);
+                index = (1-nx:0).'*onenb' + ...
+                        nx*((left+1).'*onenb' + onenx*(-obj.k:0));
+                cc(index) = b(nd*(1:nx),:);
+                % (This uses the fact that, for a column vector  v  and a matrix  A ,
+                %  v(A)(i,j)=v(A(i,j)), all i,j.)
+                B     = reshape(cc((1-nx:0).'*onens' +  nx*onenx*((1:ns))), nx, ns);
             end
             
             % if reordered elements if they were not monotonically increasing, put back in original

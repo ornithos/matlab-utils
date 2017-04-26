@@ -15,10 +15,13 @@ classdef objProgressBar < handle
     
     methods (Access = public)
         % constructor
-        function obj = objProgressBar
+        function obj = objProgressBar(varargin)
+            if ~isempty(varargin)
+                obj.newProgressBar(varargin{:});
+            end
         end
         
-        % old syntax newProgressBar(obj, text, maxLen, showPct, showTime)
+        % old syntax newProgressBar(obj, text, maxLen, 'showPct', .., 'showTime', ..)
         function newProgressBar(obj, text, maxLen, varargin)
             
             assert(ischar(text), 'text must be a character string');
