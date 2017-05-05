@@ -64,15 +64,16 @@ classdef bspline
             obj.t       = t';
             obj.bdknots = bdknots;
         end
-    
-        function B = basisEval(obj, X, doSlow)
+       
+        function B = basisEval(obj, X, doLoop)
             % evaluate the given basis at positions X = [x1, x2, ..., xm].
             %
-            % Uses recurrence B_{jk} = w_{jk} B_{j,k-1} + (1-w_{jk}) B_{j+1,k-1}
+            % Uses recurrence B_{jk} = w_{jk} B_{j,degk-1} + (1-w_{jk}) B_{j+1,degk-1}
             
             assert(isnumeric(X) && isvector(X), 'X must be a numeric vector');
-            if nargin < 3 || isempty(doSlow)
-                doSlow = false;
+            N               = numel(X);
+            if nargin < 3 || isempty(doLoop)
+                doLoop = N < 100;
             end
             
             X               = X(:);
@@ -85,20 +86,20 @@ classdef bspline
             else
                 reordered = 0;
             end
-            N               = numel(X);
             nt              = numel(obj.t);
 %             ix   = utils.base.findInterval(X, obj.t, 'type', 'logical', 'ties', 'all');
             
             nbasis          = nt - (obj.bdknots);
+            degk            = obj.k;
             knotslower      = obj.t(1:nbasis);
             [~,index]       = sort([knotslower', X']);
             pointer         = find(index > nbasis) - (1:N);
-            left            = max([pointer; obj.k*ones(1,N)]);  
+            left            = max([pointer; degk*ones(1,N)]);  
 
-            b               = repmat([1, zeros(1, obj.k)], N, 1);
+            b               = repmat([1, zeros(1, degk)], N, 1);
             
             % recursion directly from de Boor (and James Ramsay).
-            for jj = 1:obj.k
+            for jj = 1:degk
                 saved = zeros(N, 1);
                 for r = 1:jj
                     leftpr    = left + r;
@@ -112,7 +113,7 @@ classdef bspline
                 b(1:N, jj+1)    = saved;
             end
             
-            % now each end column in b corresponds to B_{i-k+1,k}, ..., B_{ik}
+            % now each end column in b corresponds to B_{i-degk+1,degk}, ..., B_{ik}
             % for each i, where i corresponds to the knot to the left of
             % the interval in which each x falls. So to place them all in
             % the same (comparable matrix, we need to shift the columns
@@ -120,26 +121,26 @@ classdef bspline
             
             % this loop is a lot slower than the method used by James
             % Ramsay - but it is *much* more intuitive!
-            if doSlow
+            if doLoop
                 B = zeros(N, numel(obj.t) - obj.bdknots+1);
                 for nn = 1:N
-                    B(nn, (left(nn)-obj.k+1):left(nn)+1) = b(nn,:);
+                    B(nn, (left(nn)-degk+1):left(nn)+1) = b(nn,:);
                 end
             else
-                % James Ransay version
-                ns    = numel(obj.t) - obj.bdknots + 1;
-                nbasis= numel(obj.t) - obj.bdknots*2 + obj.k + 1;
+                % James Ramsay version
+                ns    = nt - obj.bdknots + 1;
+                nbasis= nt - obj.bdknots*2 + degk + 1;
                 nx    = N;
                 nd    = 1;  % derivative num + 1
-                onenb = ones(obj.k+1,1);
+                onenb = ones(degk+1,1);
                 onenx = ones(N, 1);
                 onens = ones(ns, 1);
                 
-                width = max([ns,nbasis]) + obj.k + obj.k;
+                width = max([ns,nbasis]) + degk + degk;
                 
                 cc    = zeros(nx*width,1);
                 index = (1-nx:0).'*onenb' + ...
-                        nx*((left+1).'*onenb' + onenx*(-obj.k:0));
+                        nx*((left+1).'*onenb' + onenx*(-degk:0));
                 cc(index) = b(nd*(1:nx),:);
                 % (This uses the fact that, for a column vector  v  and a matrix  A ,
                 %  v(A)(i,j)=v(A(i,j)), all i,j.)
