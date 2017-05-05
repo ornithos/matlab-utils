@@ -2,7 +2,7 @@ function verticalLine(x, varargin)
     
     assert(isnumeric(x) && isvector(x), 'x must be a numeric vector');
     
-    optsDefault = struct('Color', 'k', 'LineWidth', 0.5, 'LinesToBack', true, 'axis', []);
+    optsDefault = struct('Color', 'k', 'LineWidth', 0.5, 'LinesToBack', true, 'axis', [], 'LineStyle', '-');
     opts = utils.base.processVarargin(varargin, optsDefault);
     if isempty(opts.axis)
         ax = gca;
@@ -20,7 +20,7 @@ function verticalLine(x, varargin)
     hold(ax, 'on');
     
     for ii = 1:N
-        line(ax, [x(ii), x(ii)], [lim(3), lim(4)], 'Color', opts.Color, 'LineWidth', opts.LineWidth);
+        line(ax, [x(ii), x(ii)], [lim(3), lim(4)], 'Color', opts.Color, 'LineWidth', opts.LineWidth, 'LineStyle', opts.LineStyle);
     end
     
     axis(ax, lim)  % reset axes

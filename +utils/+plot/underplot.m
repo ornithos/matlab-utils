@@ -236,23 +236,75 @@ classdef underplot < handle
             title(ax, strTitle);
         end
         
-        function lims = xlim(obj, x1, x2)
+        function lims = xlim(obj, x1, x2, axisName, axisNum)
+            if nargin > 3
+                if nargin < 5; axisNum = []; end
+                ax = obj.getAxis(axisName, axisNum);
+            else
+                ax = [];
+            end
+                
             if nargin < 2
-                x1 = obj.axisMain.XLim;
+                if isempty(ax)
+                    x1 = obj.axisMain.XLim;
+                else
+                    x1 = ax.XLim;
+                end
                 lims = [x1(1), x1(2)];
                 return
             end
             if isnumeric(x1) && numel(x1) == 2 && (nargin < 3 || isempty(x2))
-                x2 = x1(1);
+                x2 = x1(2);
+                x1 = x1(1);
             end
-
+            
             assert(isnumeric(x1) && isscalar(x1), 'x1 is not numeric scalar');
             assert(isnumeric(x2) && isscalar(x2), 'x2 is not numeric scalar');
-            xlim(obj.axisMain, [x1, x2]);
-            for ii = 1:obj.n
-                xlim(obj.axesThin{ii}, [x1, x2]);
+            if ~isempty(ax)
+                xlim(ax, [x1, x2]);
+            else
+                xlim(obj.axisMain, [x1, x2]);
+                for ii = 1:obj.n
+                    xlim(obj.axesThin{ii}, [x1, x2]);
+                end
             end
             lims = [x1,x2];
+        end
+        
+        function lims = ylim(obj, y1, y2, axisName, axisNum)
+            if nargin > 3
+                if nargin < 5; axisNum = []; end
+                ax = obj.getAxis(axisName, axisNum);
+            else
+                ax = [];
+            end
+                
+            if nargin < 2
+                if isempty(ax)
+                    y1 = obj.axisMain.YLim;
+                else
+                    y1 = ax.YLim;
+                end
+                lims = [y1(1), y1(2)];
+                return
+            end
+
+            if isnumeric(y1) && numel(y1) == 2 && (nargin < 3 || isempty(y2))
+                y2 = y1(2);
+                y1 = y1(1);
+            end
+
+            assert(isnumeric(y1) && isscalar(y1), 'y1 is not numeric scalar');
+            assert(isnumeric(y2) && isscalar(y2), 'y2 is not numeric scalar');
+            if ~isempty(ax)
+                ylim(ax, [y1, y2]);
+            else
+                ylim(obj.axisMain, [y1, y2]);
+                for ii = 1:obj.n
+                    xlim(obj.axesThin{ii}, [y1, y2]);
+                end
+            end
+            lims = [y1,y2];
         end
         
         function kludge = ylabels(obj, yAxisLabelMain, yAxisLabelUnder)
