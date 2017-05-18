@@ -17,15 +17,17 @@ classdef underplot < handle
     %   Get relevant axis object to manipulate more freely.
     %
     
-    properties
+    properties (SetAccess = private)
         figHandle
         n
         axisMain
         axesThin
+    end
+    properties (Access = private)
         borderHoriz
         borderVert
         underYtickmarks, underXtickmarks
-        yAxisLabelMain, yAxisLabelUnder
+        yAxisLabelMain, yAxisLabelUnder 
     end
     methods
         function obj = underplot(n, mainPct, varargin)
@@ -326,6 +328,17 @@ classdef underplot < handle
                     ylabel(obj.axesThin{ii}, yAxisLabelUnder{ii});
                 end
             end
+            kludge = [];
+        end
+        
+        function kludge = xlabel(obj, xlabelTxt)
+            if ~isempty(xlabelTxt)
+                assert(ischar(xlabelTxt), 'xlabelTxt must be a character string');
+            else
+                error('required: xlabelTxt');
+            end
+            
+            xlabel(obj.axesThin{obj.n}, xlabelTxt);
             kludge = [];
         end
         

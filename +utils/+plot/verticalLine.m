@@ -1,4 +1,13 @@
 function verticalLine(x, varargin)
+    % verticalLine(x)
+    %
+    % Draw vertical line on plot at x = x.
+    %
+    % verticalLine(..., 'Color', 'k');
+    % verticalLine(..., 'LineWidth', 0.5);
+    % verticalLine(..., 'LineStyle', '-');
+    % verticalLine(..., 'axis', []);           --> optional specify existing axis
+    % verticalLine(..., 'LinesToBack', true);  --> send to back
     
     assert(isnumeric(x) && isvector(x), 'x must be a numeric vector');
     
